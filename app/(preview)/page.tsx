@@ -8,17 +8,9 @@ import { ChatMessages } from "./components/ChatMessages";
 import { ChatInput } from "./components/ChatInput";
 
 export default function Home() {
-  const { open } = useAuthKit({
-    token: {
-      url: "http://localhost:3000/api/authkit",
-      headers: {},
-    },
-    // appTheme: 'dark',
-    selectedConnection: "GitHub",
-    onSuccess: (connection) => {},
-    onError: (error) => {},
-    onClose: () => {},
-  });
+
+  const [showButton, setShowButton] = useState(false);
+ 
 
   const {
     messages,
@@ -31,6 +23,15 @@ export default function Home() {
     status,
   } = useChat({
     maxSteps: 20,
+
+    async onToolCall({toolCall}) {
+      if (toolCall.toolName === "showButton") {
+        setShowButton(true);
+        return {
+          message: "Button shown",
+        }
+      }
+    },
   });
 
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -51,6 +52,7 @@ export default function Home() {
       <div className="flex flex-col h-full">
         <Header />
         <ChatMessages messages={messages} isLoading={isLoading} />
+        {showButton && <button onClick={() => setShowButton(false)}>Show Button</button>}
         <ChatInput
           inputRef={inputRef}
           input={input}
